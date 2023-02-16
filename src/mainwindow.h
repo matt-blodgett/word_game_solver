@@ -5,17 +5,16 @@
 #include <QMainWindow>
 
 
-//QT_BEGIN_NAMESPACE
-//class QPushButton;
-//QT_END_NAMESPACE
+#include <QThread>
+
 
 
 class Board;
 class Solver;
 
-class BoardView;
-class ControlsView;
-class WordListView;
+class FrameBoard;
+class FrameControls;
+class FrameWordList;
 
 
 class MainWindow : public QMainWindow
@@ -32,23 +31,25 @@ private:
     void initializeLayout();
     void initializeState();
     void initializeStyle();
-    void saveSettings();
 
 private:
     Board *m_board = nullptr;
     Solver *m_solver = nullptr;
 
 private:
-    BoardView *m_frmBoardView = nullptr;
-    ControlsView *m_frmControlsView = nullptr;
-    WordListView *m_frmWordListView = nullptr;
+    FrameBoard *m_frmBoard = nullptr;
+    FrameControls *m_frmControls = nullptr;
+    FrameWordList *m_frmWordList = nullptr;
 
 private slots:
-    void process();
+    void process(const int &min, const int &max);
 
-protected:
-    void closeEvent(QCloseEvent *event);
-    void paintEvent(QPaintEvent *event);
+private:
+    QThread workerThread;
+    void handleResults(QStringList result);
+
+signals:
+    void operate(const int &min, const int &max);
 };
 
 

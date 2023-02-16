@@ -10,23 +10,23 @@
 
 Solver::Solver(QObject *parent) : QObject(parent)
 {
-    m_wordlistPath = "";
+    m_wordListPath = "wordlist.txt";
 }
 
-void Solver::setWordlistPath(const QString &path)
+void Solver::setWordListPath(const QString &path)
 {
-    m_wordlistPath = path;
+    m_wordListPath = path;
 }
-QString Solver::wordlistPath() const
+QString Solver::wordListPath() const
 {
-    return m_wordlistPath;
+    return m_wordListPath;
 }
 
-bool Solver::isWordValid(const QString &word)
+bool Solver::isValidWord(const QString &word)
 {
-    QFile inFile(m_wordlistPath);
+    QFile inFile(m_wordListPath);
     if(!inFile.open(QIODevice::ReadOnly)) {
-        qWarning() << "error opening file for read" << m_wordlistPath;
+        qWarning() << "error opening file for read" << m_wordListPath;
         return false;
     }
 
@@ -45,20 +45,20 @@ bool Solver::isWordValid(const QString &word)
 
     return foundMatch;
 }
-QStringList Solver::filterInvalidWords(QStringList words, const bool &sort)
+QStringList Solver::findAllValidWords(QStringList wordList, const bool &sort)
 {
     QStringList validWords;
 
-    QFile inFile(m_wordlistPath);
+    QFile inFile(m_wordListPath);
     if(!inFile.open(QIODevice::ReadOnly)) {
-        qWarning() << "error opening file for read" << m_wordlistPath;
+        qWarning() << "error opening file for read" << m_wordListPath;
         return validWords;
     }
 
     QTextStream inStream(&inFile);
     while (!inStream.atEnd()) {
         QString line = inStream.readLine();
-        for (QString &word : words) {
+        for (QString &word : wordList) {
             if (word == line) {
                 validWords.push_back(word);
                 break;
@@ -78,7 +78,7 @@ QStringList Solver::filterInvalidWords(QStringList words, const bool &sort)
 }
 
 
-void Solver::generateOptimizedWordlistFile(const QString &inPath, const QString &outPath, const int &minWordLength, const int &maxWordLength)
+void Solver::generateOptimizedWordListFile(const QString &inPath, const QString &outPath, const int &minWordLength, const int &maxWordLength)
 {
     QFile inFile(inPath);
     if(!inFile.open(QIODevice::ReadOnly)) {

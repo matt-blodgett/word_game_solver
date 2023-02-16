@@ -1,0 +1,35 @@
+/* -------------------------------------------------- */
+
+
+BoardTile QLabel#BoardTileLabel {
+    border: 1px solid #000000;
+    font-size: 26px;
+}
+
+BoardTile QLineEdit#BoardTileInput {
+    border: 1px solid #000000;
+    font-size: 26px;
+}
+
+
+/* -------------------------------------------------- */
+
+
+FrameBoard {
+    border: 1px solid #000000;
+    background: #ccebd1;
+}
+FrameControls {
+    border: 1px solid #000000;
+    background: #75d1d0;
+}
+FrameWordlist {
+    border: 1px solid #000000;
+    background: #d9a3ff;
+}
+
+
+FrameControls QPushButton#StartProcess {
+    width: 50px;
+    height: 50px;
+}

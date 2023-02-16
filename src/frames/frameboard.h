@@ -1,8 +1,8 @@
-#ifndef BOARDVIEW_H
-#define BOARDVIEW_H
+#ifndef FRAMEBOARD_H
+#define FRAMEBOARD_H
 
 
-#include <QWidget>
+#include <QFrame>
 
 
 QT_BEGIN_NAMESPACE
@@ -15,12 +15,12 @@ QT_END_NAMESPACE
 class Board;
 
 
-class BoardViewTile : public QWidget
+class BoardTile : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit BoardViewTile(QWidget *parent = nullptr);
+    explicit BoardTile(QWidget *parent = nullptr);
 
 public:
     void setValue(const QString &letter);
@@ -42,12 +42,12 @@ private slots:
 };
 
 
-class BoardView : public QWidget
+class FrameBoard : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit BoardView(QWidget *parent = nullptr);
+    explicit FrameBoard(QWidget *parent = nullptr);
 
 public:
     void setBoard(Board *board);
@@ -64,7 +64,7 @@ private:
     QPushButton *m_btnSave = nullptr;
     QPushButton *m_btnCancel = nullptr;
 
-    QVector<QVector<BoardViewTile*>> m_tiles;
+    QVector<QVector<BoardTile*>> m_tiles;
 
 private slots:
     void onSaveClicked();
@@ -73,7 +73,7 @@ signals:
     void editingStatusChanged(const bool &editing);
 };
 
-#endif // BOARDVIEW_H
+#endif // FRAMEBOARD_H
 
 
 

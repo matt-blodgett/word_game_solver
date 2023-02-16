@@ -20,7 +20,7 @@ typedef QVector<Point> PointList;
 
 class Board : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
 
 public:
     explicit Board(QObject *parent = nullptr);

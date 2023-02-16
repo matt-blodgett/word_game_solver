@@ -1,10 +1,11 @@
-#include "boardview.h"
+#include "frameboard.h"
 
 
 #include "utils/board.h"
 
 
 #include <QGridLayout>
+
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -16,20 +17,20 @@
 
 
 
-BoardViewTile::BoardViewTile(QWidget *parent) : QWidget(parent)
+BoardTile::BoardTile(QWidget *parent) : QWidget(parent)
 {
     m_label = new QLabel(this);
     m_input = new QLineEdit(this);
 
-    m_label->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    m_input->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+//    m_label->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+//    m_input->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
     m_label->setFixedSize(50, 50);
     m_input->setFixedSize(50, 50);
 
     QGridLayout *gridMain = new QGridLayout(this);
-    gridMain->addWidget(m_label, 1, 1, 1, 1);
-    gridMain->addWidget(m_input, 1, 1, 1, 1);
+    gridMain->addWidget(m_label, 0, 0, 1, 1);
+    gridMain->addWidget(m_input, 0, 0, 1, 1);
     gridMain->setContentsMargins(0, 0, 0, 0);
     gridMain->setHorizontalSpacing(0);
     gridMain->setVerticalSpacing(0);
@@ -39,7 +40,7 @@ BoardViewTile::BoardViewTile(QWidget *parent) : QWidget(parent)
 
     m_input->setMaxLength(1);
 
-    connect(m_input, &QLineEdit::textEdited, this, &BoardViewTile::onTextEdited);
+    connect(m_input, &QLineEdit::textEdited, this, &BoardTile::onTextEdited);
 
 
     m_label->setObjectName("BoardTileLabel");
@@ -47,35 +48,30 @@ BoardViewTile::BoardViewTile(QWidget *parent) : QWidget(parent)
 }
 
 
-void BoardViewTile::setValue(const QString &letter)
+void BoardTile::setValue(const QString &letter)
 {
     m_value = letter;
     m_label->setText(m_value);
     m_input->setText(m_value);
 }
-QString BoardViewTile::value() const
+QString BoardTile::value() const
 {
     return m_value;
 }
-QString BoardViewTile::editedValue() const
+QString BoardTile::editedValue() const
 {
     return m_input->text();
 }
 
-void BoardViewTile::setEditing(const bool &editing)
+void BoardTile::setEditing(const bool &editing)
 {
     m_editing = editing;
 
-    if (m_editing) {
-        m_label->hide();
-        m_input->show();
-    } else {
-        m_input->hide();
-        m_label->show();
-    }
+    m_label->setVisible(!m_editing);
+    m_input->setVisible(m_editing);
 }
 
-void BoardViewTile::onTextEdited(const QString &text)
+void BoardTile::onTextEdited(const QString &text)
 {
     m_input->setText(text.toUpper());
     QKeyEvent event(QEvent::KeyPress, Qt::Key_Tab, Qt::NoModifier);
@@ -87,7 +83,7 @@ void BoardViewTile::onTextEdited(const QString &text)
 
 
 
-BoardView::BoardView(QWidget *parent) : QWidget(parent)
+FrameBoard::FrameBoard(QWidget *parent) : QFrame(parent)
 {
     m_frmTiles = new QWidget(this);
 
@@ -100,21 +96,21 @@ BoardView::BoardView(QWidget *parent) : QWidget(parent)
     m_btnCancel->setText("Cancel");
 
     connect(m_btnEdit, &QPushButton::released, this, [this]{setEditing(true);});
-    connect(m_btnSave, &QPushButton::released, this, &BoardView::onSaveClicked);
+    connect(m_btnSave, &QPushButton::released, this, &FrameBoard::onSaveClicked);
     connect(m_btnCancel, &QPushButton::released, this, [this]{setEditing(false);});
 }
 
 
-void BoardView::setBoard(Board *board)
+void FrameBoard::setBoard(Board *board)
 {
     m_board = board;
 
     QGridLayout *gridTiles = new QGridLayout(m_frmTiles);
     for (int x = 0; x < m_board->gridSize(); x++) {
-        QVector<BoardViewTile*> row;
+        QVector<BoardTile*> row;
 
         for (int y = 0; y < m_board->gridSize(); y++) {
-            BoardViewTile *tile = new BoardViewTile(this);
+            BoardTile *tile = new BoardTile(this);
 
             tile->setValue(m_board->letterAt(x, y));
             gridTiles->addWidget(tile, x, y, 1, 1);
@@ -151,7 +147,7 @@ void BoardView::setBoard(Board *board)
     m_btnCancel->hide();
 }
 
-void BoardView::setEditing(const bool &editing)
+void FrameBoard::setEditing(const bool &editing)
 {
     if (m_editing == editing) {
         return;
@@ -159,18 +155,12 @@ void BoardView::setEditing(const bool &editing)
 
     m_editing = editing;
 
-    if (m_editing) {
-        m_btnEdit->hide();
-        m_btnSave->show();
-        m_btnCancel->show();
-    } else {
-        m_btnEdit->show();
-        m_btnSave->hide();
-        m_btnCancel->hide();
-    }
+    m_btnEdit->setVisible(!m_editing);
+    m_btnSave->setVisible(m_editing);
+    m_btnCancel->setVisible(m_editing);
 
-    for (QVector<BoardViewTile*> &tiles : m_tiles) {
-        for (BoardViewTile *tile : tiles) {
+    for (QVector<BoardTile*> &tiles : m_tiles) {
+        for (BoardTile *tile : tiles) {
             tile->setEditing(m_editing);
         }
     }
@@ -178,11 +168,11 @@ void BoardView::setEditing(const bool &editing)
     emit editingStatusChanged(m_editing);
 }
 
-void BoardView::onSaveClicked()
+void FrameBoard::onSaveClicked()
 {
     QString letters;
-    for (QVector<BoardViewTile*> &tiles : m_tiles) {
-        for (BoardViewTile *tile : tiles) {
+    for (QVector<BoardTile*> &tiles : m_tiles) {
+        for (BoardTile *tile : tiles) {
             letters += tile->editedValue();
         }
     }
@@ -191,7 +181,7 @@ void BoardView::onSaveClicked()
 
     for (int x = 0; x < m_board->gridSize(); x++) {
         for (int y = 0; y < m_board->gridSize(); y++) {
-            BoardViewTile *tile = m_tiles[x][y];
+            BoardTile *tile = m_tiles[x][y];
             tile->setValue(m_board->letterAt(x, y));
         }
     }

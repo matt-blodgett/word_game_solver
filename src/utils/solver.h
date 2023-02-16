@@ -7,24 +7,24 @@
 
 class Solver : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
 
 public:
     explicit Solver(QObject *parent = nullptr);
 
 public:
-    void setWordlistPath(const QString &path);
-    QString wordlistPath() const;
+    void setWordListPath(const QString &path);
+    QString wordListPath() const;
 
 private:
-    QString m_wordlistPath;
+    QString m_wordListPath;
 
 public:
-    bool isWordValid(const QString &word);
-    QStringList filterInvalidWords(QStringList words, const bool &sort = false);
+    bool isValidWord(const QString &word);
+    QStringList findAllValidWords(QStringList wordList, const bool &sort = true);
 
 public:
-    void generateOptimizedWordlistFile(const QString &inPath, const QString &outPath, const int &minWordLength, const int &maxWordLength);
+    void generateOptimizedWordListFile(const QString &inPath, const QString &outPath, const int &minWordLength, const int &maxWordLength);
 };
 
 #endif // SOLVER_H
