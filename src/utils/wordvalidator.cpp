@@ -1,4 +1,4 @@
-#include "solver.h"
+#include "wordvalidator.h"
 
 
 #include <QFile>
@@ -8,21 +8,21 @@
 
 
 
-Solver::Solver(QObject *parent) : QObject(parent)
+WordValidator::WordValidator(QObject *parent) : QObject(parent)
 {
     m_wordListPath = "wordlist.txt";
 }
 
-void Solver::setWordListPath(const QString &path)
+void WordValidator::setWordListPath(const QString &path)
 {
     m_wordListPath = path;
 }
-QString Solver::wordListPath() const
+QString WordValidator::wordListPath() const
 {
     return m_wordListPath;
 }
 
-bool Solver::isValidWord(const QString &word)
+bool WordValidator::isValidWord(const QString &word)
 {
     QFile inFile(m_wordListPath);
     if(!inFile.open(QIODevice::ReadOnly)) {
@@ -45,7 +45,7 @@ bool Solver::isValidWord(const QString &word)
 
     return foundMatch;
 }
-QStringList Solver::findAllValidWords(QStringList wordList, const bool &sort)
+QStringList WordValidator::findAllValidWords(QStringList wordList, const bool &sort)
 {
     QStringList validWords;
 
@@ -78,7 +78,7 @@ QStringList Solver::findAllValidWords(QStringList wordList, const bool &sort)
 }
 
 
-void Solver::generateOptimizedWordListFile(const QString &inPath, const QString &outPath, const int &minWordLength, const int &maxWordLength)
+void WordValidator::generateOptimizedWordListFile(const QString &inPath, const QString &outPath, const int &minWordLength, const int &maxWordLength)
 {
     QFile inFile(inPath);
     if(!inFile.open(QIODevice::ReadOnly)) {

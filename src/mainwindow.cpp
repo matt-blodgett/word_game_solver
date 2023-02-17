@@ -1,13 +1,14 @@
 #include "mainwindow.h"
 
+#include "version.h"
+
 #include "utils/board.h"
-#include "utils/solver.h"
+#include "utils/solutionengine.h"
 
 #include "frames/frameboard.h"
 #include "frames/framecontrols.h"
 #include "frames/framewordlist.h"
 
-#include "version.h"
 
 
 #include <QGridLayout>
@@ -21,7 +22,7 @@
 #include <QDebug>
 
 
-#include "utils/worker.h"
+
 
 
 QString lettersRow0 = "ABCD";
@@ -33,7 +34,6 @@ QString lettersRow3 = "MNOP";
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-
     initializeObjects();
     initializeMainMenu();
     initializeLayout();
@@ -43,14 +43,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 }
 MainWindow::~MainWindow()
 {
-    workerThread.quit();
-    workerThread.wait();
+    engineThread.quit();
+    engineThread.wait();
 }
 
 void MainWindow::initializeObjects()
 {
     m_board = new Board(this);
-    m_solver = new Solver(this);
 
     m_frmBoard = new FrameBoard(this);
     m_frmControls = new FrameControls(this);
@@ -113,7 +112,7 @@ void MainWindow::initializeState()
 {
     QString letters = lettersRow0 + lettersRow1 + lettersRow2 + lettersRow3;
     int gridSize = 4;
-    m_board->setup(letters, gridSize);
+    m_board->initialize(letters, gridSize);
     m_frmBoard->setBoard(m_board);
 }
 void MainWindow::initializeStyle()
@@ -134,46 +133,26 @@ void MainWindow::initializeStyle()
 }
 
 
-//void MainWindow::process(const int &min, const int &max)
-//{
-//    qDebug() << "getting board strings";
-//    QStringList boardStrings = m_board->findAllValidStrings(min, max);
-
-//    qDebug() << "getting valid words";
-//    QStringList validWords = m_solver->findAllValidWords(boardStrings);
-
-//    qDebug() << "done";
-
-//    qDebug() << "board strings:" << boardStrings.size();
-//    qDebug() << "valid words:" << validWords.size();
-
-//    m_frmWordList->setWordList(validWords);
-//}
-
-
-
 void MainWindow::process(const int &min, const int &max)
 {
 //    Q_UNUSED(min)
 //    Q_UNUSED(max)
 
-    Worker *worker = new Worker;
-    worker->board = m_board;
-    worker->solver = m_solver;
-    worker->moveToThread(&workerThread);
-    connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
-    connect(this, &MainWindow::operate, worker, &Worker::process);
-    connect(worker, &Worker::resultReady, this, &MainWindow::handleResults);
-    workerThread.start();
+    SolutionEngine *engine = new SolutionEngine;
+    engine->initialize(m_board);
+    engine->moveToThread(&engineThread);
+
+    connect(&engineThread, &QThread::finished, engine, &QObject::deleteLater);
+    connect(this, &MainWindow::operate, engine, &SolutionEngine::process);
+    connect(engine, &SolutionEngine::processFinished, this, &MainWindow::handleResults);
+    engineThread.start();
 
     emit operate(min, max);
-
 }
 
 void MainWindow::handleResults(QStringList result)
 {
-    qDebug() << "handleResults";
-    qDebug() << result;
+    m_frmWordList->setWordList(result);
 }
 
 

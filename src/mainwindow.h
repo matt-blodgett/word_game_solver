@@ -10,7 +10,7 @@
 
 
 class Board;
-class Solver;
+
 
 class FrameBoard;
 class FrameControls;
@@ -34,7 +34,6 @@ private:
 
 private:
     Board *m_board = nullptr;
-    Solver *m_solver = nullptr;
 
 private:
     FrameBoard *m_frmBoard = nullptr;
@@ -45,7 +44,7 @@ private slots:
     void process(const int &min, const int &max);
 
 private:
-    QThread workerThread;
+    QThread engineThread;
     void handleResults(QStringList result);
 
 signals:

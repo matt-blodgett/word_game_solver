@@ -1,16 +1,16 @@
-#ifndef SOLVER_H
-#define SOLVER_H
+#ifndef WORDVALIDATOR_H
+#define WORDVALIDATOR_H
 
 
 #include <QObject>
 
 
-class Solver : public QObject
+class WordValidator : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Solver(QObject *parent = nullptr);
+    explicit WordValidator(QObject *parent = nullptr);
 
 public:
     void setWordListPath(const QString &path);
@@ -24,7 +24,7 @@ public:
     QStringList findAllValidWords(QStringList wordList, const bool &sort = true);
 
 public:
-    void generateOptimizedWordListFile(const QString &inPath, const QString &outPath, const int &minWordLength, const int &maxWordLength);
+    static void generateOptimizedWordListFile(const QString &inPath, const QString &outPath, const int &minWordLength, const int &maxWordLength);
 };
 
-#endif // SOLVER_H
+#endif // WORDVALIDATOR_H

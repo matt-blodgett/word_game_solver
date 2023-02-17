@@ -26,11 +26,13 @@ public:
     explicit Board(QObject *parent = nullptr);
 
 public:
-    void setup(const QString &letters, const int &gridSize);
-    void setLetters(const QString &letters);
+    void initialize(const QString &letters, const int &gridSize);
 
-    QChar letterAt(const Point &point);
-    QChar letterAt(const int &x, const int &y);
+    void setLetters(const QString &letters);
+    QString letters() const;
+
+    QChar letterAt(const Point &point) const;
+    QChar letterAt(const int &x, const int &y) const;
 
     int gridSize() const;
 

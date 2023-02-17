@@ -15,18 +15,20 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    utils/worker.cpp
+    utils/solutionengine.cpp
 HEADERS += version.h \
-    utils/worker.h
+    utils/solutionengine.h
 
 HEADERS += mainwindow.h
 SOURCES += mainwindow.cpp
 
 HEADERS += utils/board.h
-HEADERS += utils/solver.h
+HEADERS += \
+    utils/wordvalidator.h
 
 SOURCES += utils/board.cpp
-SOURCES += utils/solver.cpp
+SOURCES += \
+    utils/wordvalidator.cpp
 
 HEADERS += frames/frameboard.h
 HEADERS += frames/framecontrols.h

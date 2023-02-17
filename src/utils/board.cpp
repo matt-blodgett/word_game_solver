@@ -13,7 +13,7 @@ Board::Board(QObject *parent) : QObject(parent)
 }
 
 
-void Board::setup(const QString &letters, const int &gridSize)
+void Board::initialize(const QString &letters, const int &gridSize)
 {
     m_gridSize = gridSize;
     setLetters(letters);
@@ -37,20 +37,24 @@ void Board::setLetters(const QString &letters)
         m_grid.push_back(row);
     }
 }
+QString Board::letters() const
+{
+    return m_letters;
+}
+
+QChar Board::letterAt(const Point &point) const
+{
+    return m_grid[point.x][point.y];
+}
+QChar Board::letterAt(const int &x, const int &y) const
+{
+    Point point = {x, y};
+    return letterAt(point);
+}
 
 int Board::gridSize() const
 {
     return m_gridSize;
-}
-
-QChar Board::letterAt(const Point &point)
-{
-    return m_grid[point.x][point.y];
-}
-QChar Board::letterAt(const int &x, const int &y)
-{
-    Point point = {x, y};
-    return letterAt(point);
 }
 
 
