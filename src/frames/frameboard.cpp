@@ -15,7 +15,14 @@
 #include <QApplication>
 
 
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QComboBox>
 
+
+
+
+// --------------------------------------------------
 
 BoardTile::BoardTile(QWidget *parent) : QWidget(parent)
 {
@@ -36,7 +43,7 @@ BoardTile::BoardTile(QWidget *parent) : QWidget(parent)
     gridMain->setVerticalSpacing(0);
     setLayout(gridMain);
 
-    m_input->hide();
+    m_input->setVisible(false);
 
     m_input->setMaxLength(1);
 
@@ -71,6 +78,16 @@ void BoardTile::setEditing(const bool &editing)
     m_input->setVisible(m_editing);
 }
 
+void BoardTile::setHighlighted(const bool &highlighted)
+{
+    if (highlighted) {
+        m_label->setStyleSheet("BoardTile QLabel#BoardTileLabel {border: 1px solid #000000; font-size: 26px;background: #d1a4eb;}");
+    } else {
+        m_label->setStyleSheet("BoardTile QLabel#BoardTileLabel {border: 1px solid #000000; font-size: 26px;}");
+    }
+
+}
+
 void BoardTile::onTextEdited(const QString &text)
 {
     m_input->setText(text.toUpper());
@@ -81,23 +98,34 @@ void BoardTile::onTextEdited(const QString &text)
 
 
 
-
+// --------------------------------------------------
 
 FrameBoard::FrameBoard(QWidget *parent) : QFrame(parent)
 {
-    m_frmTiles = new QWidget(this);
+    m_frmTiles = new QFrame(this);
 
-    m_btnEdit = new QPushButton(this);
-    m_btnSave = new QPushButton(this);
-    m_btnCancel = new QPushButton(this);
+    m_frmConfig = new QFrame(this);
+    m_btnEdit = new QPushButton(m_frmConfig);
+    m_btnSave = new QPushButton(m_frmConfig);
+    m_btnCancel = new QPushButton(m_frmConfig);
+
+    m_frmWordList = new QFrame(this);
+    m_listWidget = new QListWidget(m_frmWordList);
+    m_lblWordCount = new QLabel(m_frmWordList);
+
+    m_listWidget->setFixedWidth(100);
 
     m_btnEdit->setText("Edit");
     m_btnSave->setText("Done");
     m_btnCancel->setText("Cancel");
 
+    m_lblWordCount->setText("Total words: 0");
+
     connect(m_btnEdit, &QPushButton::released, this, [this]{setEditing(true);});
     connect(m_btnSave, &QPushButton::released, this, &FrameBoard::onSaveClicked);
     connect(m_btnCancel, &QPushButton::released, this, [this]{setEditing(false);});
+
+    connect(m_listWidget, &QListWidget::currentRowChanged, this, &FrameBoard::onWordListRowChanged);
 }
 
 
@@ -121,37 +149,47 @@ void FrameBoard::setBoard(Board *board)
     }
 
     // left, top, right, bottom
-    gridTiles->setContentsMargins(0, 0, 0, 0);
+//    gridTiles->setContentsMargins(0, 0, 0, 0);
     gridTiles->setHorizontalSpacing(0);
     gridTiles->setVerticalSpacing(0);
     m_frmTiles->setLayout(gridTiles);
 
+    QGridLayout *gridConfig = new QGridLayout(m_frmConfig);
+    gridConfig->addWidget(m_btnEdit, 0, 0, 1, 1);
+    gridConfig->addWidget(m_btnSave, 0, 0, 1, 1);
+    gridConfig->addWidget(m_btnCancel, 0, 1, 1, 1);
+//    gridConfig->setContentsMargins(0, 0, 0, 0);
+//    gridConfig->setHorizontalSpacing(0);
+//    gridConfig->setVerticalSpacing(0);
+    m_frmConfig->setLayout(gridConfig);
+
+    QGridLayout *gridWordList = new QGridLayout(m_frmWordList);
+    gridWordList->addWidget(m_listWidget, 0, 0, 1, 1);
+    gridWordList->addWidget(m_lblWordCount, 1, 0, 1, 1);
+//    gridWordList->setContentsMargins(0, 0, 0, 0);
+//    gridWordList->setHorizontalSpacing(0);
+//    gridWordList->setVerticalSpacing(0);
+    m_frmWordList->setLayout(gridWordList);
 
     QGridLayout *gridMain = new QGridLayout(this);
-    gridMain->addWidget(m_frmTiles, 1, 1, 1, 1);
-    gridMain->addWidget(m_btnEdit, 2, 1, 1, 1);
-    gridMain->addWidget(m_btnSave, 2, 1, 1, 1);
-    gridMain->addWidget(m_btnCancel, 3, 1, 1, 1);
-//    gridMain->setColumnStretch(0, 1);
-    gridMain->setColumnStretch(1, 0);
-//    gridMain->setColumnStretch(2, 1);
-//    gridMain->setRowStretch(0, 1);
-    gridMain->setRowStretch(1, 0);
-//    gridMain->setRowStretch(2, 1);
-//    gridMain->setContentsMargins(0, 0, 0, 0);
+    gridMain->addWidget(m_frmTiles, 0, 0, 1, 1);
+    gridMain->addWidget(m_frmConfig, 1, 0, 1, 1);
+    gridMain->addWidget(m_frmWordList, 0, 1, 3, 1);
+    gridMain->setRowStretch(2, 1);
+    gridMain->setContentsMargins(0, 0, 0, 0);
 //    gridMain->setHorizontalSpacing(0);
 //    gridMain->setVerticalSpacing(0);
     setLayout(gridMain);
 
-    m_btnSave->hide();
-    m_btnCancel->hide();
+
+    setEditing(false);
 }
 
 void FrameBoard::setEditing(const bool &editing)
 {
-    if (m_editing == editing) {
-        return;
-    }
+//    if (m_editing == editing) {
+//        return;
+//    }
 
     m_editing = editing;
 
@@ -188,11 +226,67 @@ void FrameBoard::onSaveClicked()
 
     setEditing(false);
 }
+void FrameBoard::onWordListRowChanged(int row)
+{
+    if (row < 0) {
+        return;
+    }
+
+    for (int x = 0; x < m_board->gridSize(); x++) {
+        for (int y = 0; y < m_board->gridSize(); y++) {
+            m_tiles[x][y]->setHighlighted(false);
+        }
+    }
+
+    QString word = m_listWidget->item(row)->text();
+    if (m_wordList.contains(word)) {
+        PointList points = m_wordList[word];
+        for (Point p : points) {
+            m_tiles[p.x][p.y]->setHighlighted(true);
+        }
+    }
+}
 
 
 
 
+void FrameBoard::setWordList(QMap<QString, PointList> wordList)
+{
+//    for (QString &word : wordList) {
+//        QListWidgetItem *item = new QListWidgetItem;
+//        item->setText(word);
+//        m_listWidget->addItem(item);
+//    }
+
+    m_wordList = wordList;
+
+    QStringList items = wordList.keys();
+
+    m_listWidget->addItems(items);
+    m_lblWordCount->setText("Total words: " + QString::number(items.length()));
+
+}
+
+void FrameBoard::clearWordList()
+{
+    m_wordList.clear();
+    m_listWidget->clear();
+    m_lblWordCount->setText("Total words: 0");
+}
 
 
+
+void FrameBoard::setState(const QString &state)
+{
+    m_frmConfig->setVisible(false);
+
+    if (state == "initial") {
+        m_frmConfig->setVisible(true);
+    } else if (state == "loading") {
+        // nothing
+    } else if (state == "done") {
+        // nothing
+    }
+}
 
 

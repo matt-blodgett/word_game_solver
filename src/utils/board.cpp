@@ -164,17 +164,34 @@ QString Board::pointsToString(const PointList &points)
     }
     return str;
 }
-QStringList Board::findAllValidStrings(const int &minLength, const int &maxLength)
+//QStringList Board::findAllValidStrings(const int &minLength, const int &maxLength)
+//{
+//    int depth = maxLength;
+//    if (maxLength < 0) {
+//        depth = m_gridSize * m_gridSize;
+//    }
+
+//    QStringList validStrings;
+//    for (PointList &pointCombination : getAllPointCombinations(depth)) {
+//        if (pointCombination.length() >= minLength) {
+//            validStrings << pointsToString(pointCombination);
+//        }
+//    }
+
+//    return validStrings;
+//}
+QMap<QString, PointList> Board::findAllValidStrings(const int &minLength, const int &maxLength)
 {
     int depth = maxLength;
     if (maxLength < 0) {
         depth = m_gridSize * m_gridSize;
     }
 
-    QStringList validStrings;
+    QMap<QString, PointList> validStrings;
     for (PointList &pointCombination : getAllPointCombinations(depth)) {
         if (pointCombination.length() >= minLength) {
-            validStrings << pointsToString(pointCombination);
+            QString key = pointsToString(pointCombination);
+            validStrings[key] = pointCombination;
         }
     }
 

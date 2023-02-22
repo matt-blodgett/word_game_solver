@@ -5,6 +5,9 @@
 #include <QObject>
 
 
+#include <QMap>
+
+
 struct Point
 {
     int x;
@@ -48,7 +51,8 @@ private:
 
 public:
     QString pointsToString(const PointList &points);
-    QStringList findAllValidStrings(const int &minLength = 0, const int &maxLength = -1);
+//    QStringList findAllValidStrings(const int &minLength = 0, const int &maxLength = -1);
+    QMap<QString, PointList> findAllValidStrings(const int &minLength = 0, const int &maxLength = -1);
 };
 
 #endif // BOARD_H

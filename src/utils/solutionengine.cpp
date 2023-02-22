@@ -1,7 +1,7 @@
 #include "solutionengine.h"
 
 
-#include "board.h"
+//#include "board.h"
 #include "wordvalidator.h"
 
 
@@ -24,15 +24,21 @@ void SolutionEngine::initialize(Board *board)
 void SolutionEngine::process(const int &min, const int &max)
 {
     qDebug() << "getting board strings";
-    QStringList boardStrings = m_board->findAllValidStrings(min, max);
+    QMap<QString, PointList> boardStrings = m_board->findAllValidStrings(min, max);
+    QStringList validStrings = boardStrings.keys();
 
     qDebug() << "getting valid words";
-    QStringList validWords = m_wordValidator->findAllValidWords(boardStrings);
+    QStringList validWords = m_wordValidator->findAllValidWords(validStrings);
 
     qDebug() << "done";
 
     qDebug() << "board strings:" << boardStrings.size();
     qDebug() << "valid words:" << validWords.size();
 
-    emit processFinished(validWords);
+    QMap<QString, PointList> ret;
+    for (QString &word : validWords) {
+        ret[word] = boardStrings[word];
+    }
+
+    emit processFinished(ret);
 }

@@ -5,7 +5,8 @@
 #include <QObject>
 
 
-class Board;
+#include "utils/board.h"
+//class Board;
 class WordValidator;
 
 
@@ -27,7 +28,7 @@ public slots:
     void process(const int &min, const int &max);
 
 signals:
-    void processFinished(QStringList validWords);
+    void processFinished(QMap<QString, PointList> validWords);
 
 };
 

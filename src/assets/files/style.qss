@@ -12,8 +12,14 @@ BoardTile QLineEdit#BoardTileInput {
 }
 
 
+
 /* -------------------------------------------------- */
 
+
+QFrame#FrameSolutionBoard {
+    border: 1px solid #000000;
+    background: #ACACAC;
+}
 
 FrameBoard {
     border: 1px solid #000000;
@@ -23,7 +29,7 @@ FrameControls {
     border: 1px solid #000000;
     background: #75d1d0;
 }
-FrameWordlist {
+FrameSolution {
     border: 1px solid #000000;
     background: #d9a3ff;
 }

@@ -2,12 +2,11 @@
 
 #include "version.h"
 
-#include "utils/board.h"
+//#include "utils/board.h"
 #include "utils/solutionengine.h"
 
 #include "frames/frameboard.h"
 #include "frames/framecontrols.h"
-#include "frames/framewordlist.h"
 
 
 
@@ -19,10 +18,15 @@
 #include <QDir>
 
 
+
+#include <QPushButton>
+
 #include <QDebug>
 
 
 
+
+QString arrows = "←↑→↓ ↖↗↘↙";
 
 
 QString lettersRow0 = "ABCD";
@@ -53,10 +57,10 @@ void MainWindow::initializeObjects()
 
     m_frmBoard = new FrameBoard(this);
     m_frmControls = new FrameControls(this);
-    m_frmWordList = new FrameWordList(this);
 
     connect(m_frmBoard, &FrameBoard::editingStatusChanged, m_frmControls, &FrameControls::setDisabled);
-    connect(m_frmControls, &FrameControls::startProcessClicked, this, &MainWindow::process);
+    connect(m_frmControls, &FrameControls::processClicked, this, &MainWindow::process);
+    connect(m_frmControls, &FrameControls::resetClicked, this, &MainWindow::reset);
 }
 void MainWindow::initializeMainMenu()
 {
@@ -79,26 +83,19 @@ void MainWindow::initializeLayout()
 {
     QWidget *windowMain = new QWidget(this);
     QGridLayout *gridMain = new QGridLayout(windowMain);
-
     gridMain->setRowStretch(0, 1);
     gridMain->setColumnStretch(0, 1);
     gridMain->addWidget(m_frmBoard, 1, 1, 1, 1);
     gridMain->setRowStretch(2, 1);
     gridMain->setColumnStretch(2, 1);
-
-    gridMain->addWidget(m_frmWordList, 0, 3, 3, 1);
-
-    gridMain->addWidget(m_frmControls, 3, 0, 1, 5);
-
-
-
+    gridMain->addWidget(m_frmControls, 3, 0, 1, 3);
 //    gridMain->setContentsMargins(0, 0, 0, 0);
 //    gridMain->setHorizontalSpacing(0);
 //    gridMain->setVerticalSpacing(0);
     windowMain->setLayout(gridMain);
 
+
 //    m_frmBoard->setFixedSize(200, 200);
-    m_frmWordList->setFixedWidth(150);
 
     setMinimumSize(650, 550);
 //    setFixedSize(550, 550);
@@ -107,6 +104,13 @@ void MainWindow::initializeLayout()
 
     setWindowTitle("Word Game Solver v" + QString(VERSION_STRING));
     setWindowIcon(QIcon(":/icons/temp.ico"));
+
+
+
+    QPushButton *btnTest = new QPushButton(this);
+    gridMain->addWidget(btnTest, 4, 0, 1, 1);
+    btnTest->setText("Test");
+    connect(btnTest, &QPushButton::released, this, &MainWindow::test);
 }
 void MainWindow::initializeState()
 {
@@ -133,26 +137,51 @@ void MainWindow::initializeStyle()
 }
 
 
+
+
+void MainWindow::test()
+{
+
+}
+
+
+
+void MainWindow::reset()
+{
+    m_frmControls->setState("initial");
+    m_frmBoard->setState("initial");
+    m_frmBoard->clearWordList();
+}
+
 void MainWindow::process(const int &min, const int &max)
 {
 //    Q_UNUSED(min)
 //    Q_UNUSED(max)
 
+    m_frmControls->setState("loading");
+    m_frmBoard->setState("loading");
+    m_frmBoard->clearWordList();
+
+
     SolutionEngine *engine = new SolutionEngine;
+
     engine->initialize(m_board);
     engine->moveToThread(&engineThread);
 
     connect(&engineThread, &QThread::finished, engine, &QObject::deleteLater);
     connect(this, &MainWindow::operate, engine, &SolutionEngine::process);
     connect(engine, &SolutionEngine::processFinished, this, &MainWindow::handleResults);
+
     engineThread.start();
 
     emit operate(min, max);
 }
 
-void MainWindow::handleResults(QStringList result)
+void MainWindow::handleResults(QMap<QString, PointList> result)
 {
-    m_frmWordList->setWordList(result);
+    m_frmControls->setState("done");
+    m_frmBoard->setState("done");
+    m_frmBoard->setWordList(result);
 }
 
 

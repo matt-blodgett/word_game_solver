@@ -32,11 +32,11 @@ SOURCES += \
 
 HEADERS += frames/frameboard.h
 HEADERS += frames/framecontrols.h
-HEADERS += frames/framewordlist.h
+HEADERS +=
 
 SOURCES += frames/frameboard.cpp
 SOURCES += frames/framecontrols.cpp
-SOURCES += frames/framewordlist.cpp
+SOURCES +=
 
 RESOURCES += assets/assets.qrc
 

@@ -21,22 +21,29 @@ public:
     explicit FrameControls(QWidget *parent = nullptr);
 
 private:
+    QFrame *m_frmConfig = nullptr;
     QComboBox *m_cbxMinLength = nullptr;
     QComboBox *m_cbxMaxLength = nullptr;
     QCheckBox *m_optNoMinMax = nullptr;
-    QLineEdit *m_boxWordListPath = nullptr;
-    QPushButton *m_btnOpenFileDialog = nullptr;
-    QPushButton *m_btnStartProcess = nullptr;
+    QComboBox *m_cbxBoardType = nullptr;
+    QPushButton *m_btnProcess = nullptr;
+
+    QFrame *m_frmLoading = nullptr;
+
+    QFrame *m_frmResults = nullptr;
+    QPushButton *m_btnReset = nullptr;
 
 private slots:
     void onNoMinMaxChanged(int state);
-    void onStartProcessClicked();
+    void onProcessClicked();
 
 public slots:
-    void setDisabled(bool const &disabled);
+    void setState(const QString &state);
+    void setDisabled(const bool &disabled);
 
 signals:
-    void startProcessClicked(const int &min, const int &max);
+    void processClicked(const int &min, const int &max);
+    void resetClicked();
 };
 
 #endif // FRAMECONTROLS_H

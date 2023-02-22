@@ -9,12 +9,12 @@
 
 
 
-class Board;
+#include "utils/board.h"
+//class Board;
 
 
 class FrameBoard;
 class FrameControls;
-class FrameWordList;
 
 
 class MainWindow : public QMainWindow
@@ -38,14 +38,16 @@ private:
 private:
     FrameBoard *m_frmBoard = nullptr;
     FrameControls *m_frmControls = nullptr;
-    FrameWordList *m_frmWordList = nullptr;
 
 private slots:
+    void test();
+
     void process(const int &min, const int &max);
+    void reset();
 
 private:
     QThread engineThread;
-    void handleResults(QStringList result);
+    void handleResults(QMap<QString, PointList> result);
 
 signals:
     void operate(const int &min, const int &max);
